@@ -1,0 +1,79 @@
+import { useLocation, Link } from 'react-router-dom';
+import {
+  LogIn,
+  LogOut,
+  FileText,
+  Settings,
+  Menu,
+  Calendar,
+} from 'lucide-react';
+import { useState } from 'react';
+
+const menuItems = [
+  { label: 'Check-In', href: '/staff/check-in', icon: LogIn },
+  { label: 'Check-Out', href: '/staff/check-out', icon: LogOut },
+  { label: 'Events', href: '/staff/events', icon: Calendar },
+  { label: 'Reports', href: '/staff/reports', icon: FileText },
+  { label: 'Settings', href: '/staff/settings', icon: Settings },
+];
+
+export function StaffSidebar() {
+  const location = useLocation();
+  const pathname = location.pathname;
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg"
+      >
+        <Menu size={24} />
+      </button>
+
+      <aside
+        className={`${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-blue-700 to-blue-600 text-white transition-transform duration-300 md:translate-x-0 md:relative z-40`}
+      >
+        <div className="p-6 flex items-center gap-3 border-b border-blue-500">
+          <img
+            src="/logo.png"
+            alt="Pring Kuyas Inn Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <h1 className="text-xl font-bold">Staff Portal</h1>
+        </div>
+
+        <nav className="mt-8 px-4">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-colors duration-0 ${
+                  isActive
+                    ? 'bg-white text-blue-700'
+                    : 'text-blue-100 hover:bg-blue-500'
+                }`}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+}
