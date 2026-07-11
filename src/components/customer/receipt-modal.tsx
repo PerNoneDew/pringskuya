@@ -157,10 +157,22 @@ export function ReceiptModal({ booking, event, isOpen, onClose }: ReceiptModalPr
                     <p>
                       <strong>Check-in:</strong>{' '}
                       {new Date(booking?.checkInDate || '').toLocaleDateString()}
+                      {booking?.checkInTime && (
+                        <span className="text-gray-600">
+                          {' '}at{' '}
+                          {new Date(booking.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </span>
+                      )}
                     </p>
                     <p>
                       <strong>Check-out:</strong>{' '}
                       {new Date(booking?.checkOutDate || '').toLocaleDateString()}
+                      {booking?.checkOutTime && (
+                        <span className="text-gray-600">
+                          {' '}at{' '}
+                          {new Date(booking.checkOutTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </span>
+                      )}
                     </p>
                   </>
                 )}

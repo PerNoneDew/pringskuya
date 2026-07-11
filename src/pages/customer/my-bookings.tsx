@@ -4,7 +4,7 @@ import { CustomerHeader } from '../../components/customer/customer-header';
 import { useBooking } from '../../lib/context';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Calendar, DoorOpen, Users, X, Edit2, Download } from 'lucide-react';
+import { Calendar, DoorOpen, Users, X, Edit2, Download, Clock } from 'lucide-react';
 import { EditCustomerBookingModal } from '../../components/customer/edit-booking-modal';
 import { ReceiptModal } from '../../components/customer/receipt-modal';
 import { Booking, EventBooking } from '../../lib/types';
@@ -129,12 +129,30 @@ export default function MyBookingsPage() {
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={16} className="text-blue-600" />
-                            <span>
-                              {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
-                              {new Date(booking.checkOutDate).toLocaleDateString()}
-                            </span>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-blue-600" />
+                              <span>
+                                {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
+                                {new Date(booking.checkOutDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {booking.checkInTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-green-600" />
+                                <span>
+                                  Check-in: {new Date(booking.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
+                            {booking.checkOutTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-red-600" />
+                                <span>
+                                  Check-out: {new Date(booking.checkOutTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-purple-600" />
@@ -201,12 +219,30 @@ export default function MyBookingsPage() {
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={16} className="text-blue-600" />
-                            <span>
-                              {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
-                              {new Date(booking.checkOutDate).toLocaleDateString()}
-                            </span>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-blue-600" />
+                              <span>
+                                {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
+                                {new Date(booking.checkOutDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {booking.checkInTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-green-600" />
+                                <span>
+                                  Check-in: {new Date(booking.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
+                            {booking.checkOutTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-red-600" />
+                                <span>
+                                  Check-out: {new Date(booking.checkOutTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-purple-600" />
@@ -293,12 +329,30 @@ export default function MyBookingsPage() {
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={16} className="text-blue-600" />
-                            <span>
-                              {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
-                              {new Date(booking.checkOutDate).toLocaleDateString()}
-                            </span>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-blue-600" />
+                              <span>
+                                {new Date(booking.checkInDate).toLocaleDateString()} to{' '}
+                                {new Date(booking.checkOutDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {booking.checkInTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-green-600" />
+                                <span>
+                                  Check-in: {new Date(booking.checkInTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
+                            {booking.checkOutTime && (
+                              <div className="flex items-center gap-2 pl-6 text-xs text-gray-500">
+                                <Clock size={12} className="text-red-600" />
+                                <span>
+                                  Check-out: {new Date(booking.checkOutTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-purple-600" />
