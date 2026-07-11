@@ -51,6 +51,8 @@ export interface DatabaseBooking {
   payment_method: 'counter' | 'gcash' | 'maya' | null;
   payment_reference: string | null;
   payment_status: 'pending' | 'completed' | 'cancelled' | null;
+  checked_in_at: string | null;
+  checked_out_at: string | null;
   created_at: string;
   updated_at: string;
 }

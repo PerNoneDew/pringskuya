@@ -39,7 +39,10 @@ export default function CheckOutPage() {
   };
 
   const handleCheckOut = (bookingId: string) => {
-    updateBooking(bookingId, { status: 'checked-out' });
+    updateBooking(bookingId, {
+      status: 'checked-out',
+      checkOutTime: new Date().toISOString(),
+    });
     showSuccessNotification({
       title: 'Guest Checked Out',
       description: 'Guest has been checked out successfully!',

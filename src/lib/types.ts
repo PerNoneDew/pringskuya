@@ -55,9 +55,9 @@ export interface Booking {
   paymentReference?: string;
   transactionScreenshot?: string; // Base64 encoded screenshot for GCASH/MAYA
   paymentStatus?: 'pending' | 'completed' | 'cancelled';
+  checkInTime?: string;
+  checkOutTime?: string;
 }
-
-// Event Booking Types
 export interface EventBooking {
   id: string;
   guestName: string;

@@ -29,7 +29,8 @@ export default function CheckInPage() {
 
     updateBooking(bookingId, {
       status: 'checked-in',
-      paymentStatus: 'completed'
+      paymentStatus: 'completed',
+      checkInTime: new Date().toISOString(),
     });
 
     showSuccessNotification({

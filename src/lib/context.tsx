@@ -101,6 +101,8 @@ const dbBookingToBooking = (db: DatabaseBooking): Booking => ({
   paymentMethod: db.payment_method || undefined,
   paymentReference: db.payment_reference || undefined,
   paymentStatus: db.payment_status || undefined,
+  checkInTime: db.checked_in_at || undefined,
+  checkOutTime: db.checked_out_at || undefined,
 });
 
 const dbEventBookingToEventBooking = (db: DatabaseEventBooking): EventBooking => ({

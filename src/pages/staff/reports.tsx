@@ -129,10 +129,32 @@ export default function StaffReportsPage() {
                             {booking.roomNumber}
                           </td>
                           <td className="py-3 px-3 text-gray-700">
-                            {booking.checkInDate}
+                            <div>{booking.checkInDate}</div>
+                            {booking.checkInTime && (
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {new Date(booking.checkInTime).toLocaleString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true,
+                                })}
+                              </div>
+                            )}
                           </td>
                           <td className="py-3 px-3 text-gray-700">
-                            {booking.checkOutDate}
+                            <div>{booking.checkOutDate}</div>
+                            {booking.checkOutTime && (
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {new Date(booking.checkOutTime).toLocaleString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true,
+                                })}
+                              </div>
+                            )}
                           </td>
                           <td className="py-3 px-3 text-gray-700">
                             <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
