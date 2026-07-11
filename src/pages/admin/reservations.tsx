@@ -4,9 +4,8 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { useBooking } from '../../lib/context';
 import { Badge } from '../../components/ui/badge';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { showSuccessNotification, showErrorNotification, showWarningNotification } from '../../lib/notifications';
-import { EditReservationModal } from '../../components/admin/edit-reservation-modal';
 import { DeleteConfirmDialog } from '../../components/delete-confirm-dialog';
 import { Booking } from '../../lib/types';
 
@@ -21,26 +20,9 @@ const statusColors: { [key: string]: string } = {
 export default function ReservationsPage() {
   const navigate = useNavigate();
   const { bookings, updateBooking, deleteBooking } = useBooking();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
-  // Open Edit Modal
-  const handleOpenEditModal = (booking: Booking) => {
-    setSelectedBooking(booking);
-    setIsEditModalOpen(true);
-  };
-
-  // Save Edited Reservation
-  const handleSaveReservation = (updatedBooking: Booking) => {
-    updateBooking(updatedBooking.id, updatedBooking);
-    showSuccessNotification({
-      title: 'Reservation Updated',
-      description: 'The reservation has been successfully updated.',
-    });
-  };
 
   // Approve Reservation
   const handleApproveReservation = (id: string) => {
@@ -174,13 +156,6 @@ export default function ReservationsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => handleOpenEditModal(booking)}
-                              className="p-1 hover:bg-gray-200 rounded transition"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} className="text-blue-600" />
-                            </button>
                             {booking.status === 'pending' && (
                               <>
                                 <button
@@ -269,13 +244,6 @@ export default function ReservationsPage() {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenEditModal(booking)}
-                          className="flex-1 px-2 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition flex items-center justify-center gap-1"
-                        >
-                          <Edit2 size={14} />
-                          Edit
-                        </button>
-                        <button
                           onClick={() => handleDeleteClick(booking.id)}
                           className="flex-1 px-2 py-2 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition flex items-center justify-center gap-1"
                         >
@@ -290,16 +258,6 @@ export default function ReservationsPage() {
             </div>
           </div>
         </main>
-
-        <EditReservationModal
-          booking={selectedBooking}
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedBooking(null);
-          }}
-          onSave={handleSaveReservation}
-        />
 
         <DeleteConfirmDialog
           isOpen={deleteDialogOpen}
