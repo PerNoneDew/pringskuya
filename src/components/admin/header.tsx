@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../../lib/context';
-import { Download, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Download } from 'lucide-react';
 
 export function AdminHeader() {
   const navigate = useNavigate();
@@ -31,14 +30,12 @@ export function AdminHeader() {
             <span className="text-sm text-gray-700">{currentUser.firstName || currentUser.name || 'Admin'}</span>
             <span className="text-gray-400">▼</span>
           </div>
-          <Button
+          <button
             onClick={handleLogout}
-            variant="ghost"
-            size="sm"
-            className="p-2 hover:bg-gray-100 transition"
+            className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors px-2 py-1"
           >
-            <LogOut size={20} className="text-gray-600" />
-          </Button>
+            Logout
+          </button>
         </div>
       </div>
     </header>
