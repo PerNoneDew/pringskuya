@@ -21,6 +21,7 @@ import StaffPage from './pages/staff';
 import StaffCheckInPage from './pages/staff/check-in';
 import StaffCheckOutPage from './pages/staff/check-out';
 import StaffEventsPage from './pages/staff/events';
+import StaffReservationsPage from './pages/staff/reservations';
 import StaffReportsPage from './pages/staff/reports';
 import StaffSettingsPage from './pages/staff/settings';
 
@@ -70,6 +71,7 @@ function AppContent() {
       <Route path="/staff" element={<StaffPage />} />
       <Route path="/staff/check-in" element={<StaffCheckInPage />} />
       <Route path="/staff/check-out" element={<StaffCheckOutPage />} />
+      <Route path="/staff/reservations" element={<StaffReservationsPage />} />
       <Route path="/staff/events" element={<StaffEventsPage />} />
       <Route path="/staff/reports" element={<StaffReportsPage />} />
       <Route path="/staff/settings" element={<StaffSettingsPage />} />

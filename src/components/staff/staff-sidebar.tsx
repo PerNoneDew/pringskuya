@@ -6,11 +6,13 @@ import {
   Settings,
   Menu,
   Calendar,
+  CalendarPlus,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useBooking } from '../../lib/context';
 
 const menuItems = [
+  { label: 'Reservations', href: '/staff/reservations', icon: CalendarPlus },
   { label: 'Check-In', href: '/staff/check-in', icon: LogIn },
   { label: 'Check-Out', href: '/staff/check-out', icon: LogOut },
   { label: 'Events', href: '/staff/events', icon: Calendar },
