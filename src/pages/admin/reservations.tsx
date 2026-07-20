@@ -4,7 +4,7 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { useBooking } from '../../lib/context';
 import { Badge } from '../../components/ui/badge';
-import { Trash2, DoorOpen, LogIn } from 'lucide-react';
+import { Trash2, DoorOpen, LogIn, Send } from 'lucide-react';
 import { showSuccessNotification, showErrorNotification, showWarningNotification } from '../../lib/notifications';
 import { DeleteConfirmDialog } from '../../components/delete-confirm-dialog';
 import {
@@ -43,8 +43,11 @@ export default function ReservationsPage() {
 
   const [assignRoomOpen, setAssignRoomOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState('');
+  const [transferStaffId, setTransferStaffId] = useState('');
+  const [transferRoomId, setTransferRoomId] = useState('');
 
   const activeBooking = bookings.find((b) => b.id === activeBookingId) || null;
 
@@ -137,6 +140,36 @@ export default function ReservationsPage() {
     setSelectedRoomId('');
   };
 
+  // Transfer to Staff
+  const openTransfer = (id: string) => {
+    const booking = bookings.find((b) => b.id === id);
+    setActiveBookingId(id);
+    setTransferStaffId(booking?.assignedStaffId || '');
+    setTransferRoomId(booking?.roomId || '');
+    setTransferOpen(true);
+  };
+
+  const handleConfirmTransfer = () => {
+    if (!activeBookingId || !transferStaffId) return;
+    const staff = staffAccounts.find((s) => s.id === transferStaffId);
+    const room = transferRoomId ? rooms.find((r) => r.id === transferRoomId) : null;
+    updateBooking(activeBookingId, {
+      assignedStaffId: transferStaffId,
+      roomId: room ? room.id : null,
+      roomNumber: room ? room.roomNumber : null,
+    });
+    showSuccessNotification({
+      title: 'Reservation Transferred',
+      description: room
+        ? `Reservation handed to ${staff?.firstName} ${staff?.lastName} with Room ${room.roomNumber}.`
+        : `Reservation handed to ${staff?.firstName} ${staff?.lastName}. Room assignment cleared.`,
+    });
+    setTransferOpen(false);
+    setActiveBookingId(null);
+    setTransferStaffId('');
+    setTransferRoomId('');
+  };
+
   // Check In
   const openCheckIn = (id: string) => {
     setActiveBookingId(id);
@@ -227,6 +260,14 @@ export default function ReservationsPage() {
       >
         <DoorOpen size={12} />
         Room
+      </button>
+      <button
+        onClick={() => openTransfer(booking.id)}
+        className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition flex items-center gap-1"
+        title="Transfer to Staff"
+      >
+        <Send size={12} />
+        Transfer
       </button>
       <button
         onClick={() => handleDeleteClick(booking.id)}
@@ -430,6 +471,72 @@ export default function ReservationsPage() {
                 className="bg-teal-600 hover:bg-teal-700 text-white"
               >
                 Assign Room
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Transfer to Staff Modal */}
+        <Dialog open={transferOpen} onOpenChange={(open) => !open && setTransferOpen(false)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Transfer Reservation to Staff</DialogTitle>
+              <DialogDescription>
+                Hand this reservation to a staff member for check-in handling. Room assignment is optional — leaving it blank clears any current room assignment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Staff member <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={transferStaffId}
+                  onChange={(e) => setTransferStaffId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">Select a staff member...</option>
+                  {staffAccounts
+                    .filter((s) => s.status === 'active')
+                    .map((staff) => (
+                      <option key={staff.id} value={staff.id}>
+                        {staff.firstName} {staff.lastName} — {staff.position}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Room (optional)
+                </label>
+                <select
+                  value={transferRoomId}
+                  onChange={(e) => setTransferRoomId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">No room assignment</option>
+                  {availableRooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      Room {room.roomNumber} — {room.type} (₱{room.pricePerNight}/night, sleeps {room.capacity})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Choosing "No room assignment" clears the current room so the staff can assign one themselves.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setTransferOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmTransfer}
+                disabled={!transferStaffId}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <Send size={16} className="mr-2" />
+                Transfer to Staff
               </Button>
             </DialogFooter>
           </DialogContent>
