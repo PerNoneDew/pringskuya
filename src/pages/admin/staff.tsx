@@ -4,7 +4,7 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Edit2, Trash2, Plus, Search, Copy, UserCheck, UserX } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Copy } from 'lucide-react';
 import { EditStaffModal } from '../../components/admin/edit-staff-modal';
 import { showSuccessNotification, showErrorNotification } from '../../lib/notifications';
 import { useBooking } from '../../lib/context';
@@ -113,19 +113,6 @@ export default function StaffManagementPage() {
     showSuccessNotification({
       title: 'User Updated',
       description: `${updatedStaffData.firstName} ${updatedStaffData.lastName}'s information has been updated.`,
-    });
-  };
-
-  // Toggle staff active status
-  const handleToggleStatus = (staff: StaffData) => {
-    const newStatus = staff.status === 'active' ? 'inactive' : 'active';
-    updateStaffAccount(staff.id, { ...staff, status: newStatus });
-    showSuccessNotification({
-      title: newStatus === 'active' ? 'User Activated' : 'User Deactivated',
-      description:
-        newStatus === 'active'
-          ? `${staff.firstName} ${staff.lastName} can now log in to the system.`
-          : `${staff.firstName} ${staff.lastName} can no longer log in to the system.`,
     });
   };
 
@@ -426,26 +413,15 @@ export default function StaffManagementPage() {
                             {staff.phone || 'N/A'}
                           </td>
                           <td className="px-4 py-3">
-                            <button
-                              onClick={() => handleToggleStatus(staff)}
-                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition hover:opacity-80 ${
+                            <Badge
+                              className={
                                 staff.status === 'active'
-                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                  : 'bg-red-100 text-red-800 hover:bg-red-200'
-                              }`}
-                              title={
-                                staff.status === 'active'
-                                  ? 'Click to deactivate this user'
-                                  : 'Click to activate this user'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
                               }
                             >
-                              {staff.status === 'active' ? (
-                                <UserCheck size={12} />
-                              ) : (
-                                <UserX size={12} />
-                              )}
                               {staff.status === 'active' ? 'Active' : 'Deactivate'}
-                            </button>
+                            </Badge>
                           </td>
                           <td className="px-4 py-3 text-gray-700">
                             {new Date(staff.joinDate).toLocaleDateString()}
