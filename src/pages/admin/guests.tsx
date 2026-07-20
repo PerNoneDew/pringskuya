@@ -117,7 +117,7 @@ export default function GuestsPage() {
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Bookings Management
+                  Guest Management
                 </h2>
                 <div className="flex gap-4 flex-wrap">
                   <div className="flex-1 flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg min-w-xs">
