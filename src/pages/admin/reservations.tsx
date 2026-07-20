@@ -183,7 +183,7 @@ export default function ReservationsPage() {
                                 </button>
                               </>
                             )}
-                            {booking.status !== 'cancelled' && booking.status !== 'checked-out' && booking.status !== 'checked-in' && (
+                            {booking.status === 'pending' && (
                               <button
                                 onClick={() => handleCancelReservation(booking.id)}
                                 className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition"
