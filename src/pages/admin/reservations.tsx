@@ -4,10 +4,19 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { useBooking } from '../../lib/context';
 import { Badge } from '../../components/ui/badge';
-import { Trash2 } from 'lucide-react';
+import { Trash2, UserCog, DoorOpen, LogIn } from 'lucide-react';
 import { showSuccessNotification, showErrorNotification, showWarningNotification } from '../../lib/notifications';
 import { DeleteConfirmDialog } from '../../components/delete-confirm-dialog';
-import { Booking } from '../../lib/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '../../components/ui/dialog';
+import { Button } from '../../components/ui/button';
+import { Booking, Room, StaffAccount } from '../../lib/types';
 
 const statusColors: { [key: string]: string } = {
   confirmed: 'bg-blue-100 text-blue-800',
@@ -20,10 +29,33 @@ const statusColors: { [key: string]: string } = {
 
 export default function ReservationsPage() {
   const navigate = useNavigate();
-  const { bookings, updateBooking, deleteBooking } = useBooking();
+  const {
+    bookings,
+    rooms,
+    staffAccounts,
+    updateBooking,
+    deleteBooking,
+    updateRoom,
+  } = useBooking();
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
+  const [assignStaffOpen, setAssignStaffOpen] = useState(false);
+  const [assignRoomOpen, setAssignRoomOpen] = useState(false);
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState('');
+  const [selectedRoomId, setSelectedRoomId] = useState('');
+
+  const activeBooking = bookings.find((b) => b.id === activeBookingId) || null;
+  const activeStaff = staffAccounts.find((s) => s.id === selectedStaffId) || null;
+
+  const availableRooms = rooms.filter(
+    (r) =>
+      r.status === 'available' ||
+      (activeBooking && r.id === activeBooking.roomId),
+  );
 
   // Approve Reservation
   const handleApproveReservation = (id: string) => {
@@ -83,6 +115,161 @@ export default function ReservationsPage() {
     }
   };
 
+  // Assign Staff
+  const openAssignStaff = (id: string) => {
+    const booking = bookings.find((b) => b.id === id);
+    setActiveBookingId(id);
+    setSelectedStaffId(booking?.assignedStaffId || '');
+    setAssignStaffOpen(true);
+  };
+
+  const handleConfirmAssignStaff = () => {
+    if (!activeBookingId || !selectedStaffId) return;
+    updateBooking(activeBookingId, { assignedStaffId: selectedStaffId });
+    const staff = staffAccounts.find((s) => s.id === selectedStaffId);
+    showSuccessNotification({
+      title: 'Staff Assigned',
+      description: `${staff?.firstName} ${staff?.lastName} has been assigned to this reservation.`,
+    });
+    setAssignStaffOpen(false);
+    setActiveBookingId(null);
+    setSelectedStaffId('');
+  };
+
+  // Assign Room
+  const openAssignRoom = (id: string) => {
+    const booking = bookings.find((b) => b.id === id);
+    setActiveBookingId(id);
+    setSelectedRoomId(booking?.roomId || '');
+    setAssignRoomOpen(true);
+  };
+
+  const handleConfirmAssignRoom = () => {
+    if (!activeBookingId || !selectedRoomId) return;
+    const room = rooms.find((r) => r.id === selectedRoomId);
+    if (!room) return;
+    updateBooking(activeBookingId, {
+      roomId: room.id,
+      roomNumber: room.roomNumber,
+    });
+    showSuccessNotification({
+      title: 'Room Assigned',
+      description: `Room ${room.roomNumber} has been assigned to this reservation.`,
+    });
+    setAssignRoomOpen(false);
+    setActiveBookingId(null);
+    setSelectedRoomId('');
+  };
+
+  // Check In
+  const openCheckIn = (id: string) => {
+    setActiveBookingId(id);
+    setCheckInOpen(true);
+  };
+
+  const handleConfirmCheckIn = () => {
+    if (!activeBookingId) return;
+    const booking = bookings.find((b) => b.id === activeBookingId);
+    if (!booking) return;
+
+    if (booking.status !== 'confirmed') {
+      showErrorNotification({
+        title: 'Cannot Check In',
+        description: 'Only confirmed reservations can be checked in. Approve it first.',
+      });
+      setCheckInOpen(false);
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkIn = new Date(booking.checkInDate + 'T00:00:00');
+    if (checkIn > today) {
+      showErrorNotification({
+        title: 'Cannot Check In Yet',
+        description: `Check-in date is ${booking.checkInDate}. Guest cannot be checked in before the scheduled date.`,
+      });
+      setCheckInOpen(false);
+      return;
+    }
+
+    updateBooking(activeBookingId, {
+      status: 'checked-in',
+      paymentStatus: 'completed',
+      checkInTime: new Date().toISOString(),
+    });
+
+    showSuccessNotification({
+      title: 'Guest Checked In',
+      description: `Guest ${booking.guestName} has been checked in to Room ${booking.roomNumber}.`,
+    });
+    setCheckInOpen(false);
+    setActiveBookingId(null);
+  };
+
+  const renderActions = (booking: Booking) => (
+    <div className="flex gap-1 flex-wrap">
+      {booking.status === 'pending' && (
+        <>
+          <button
+            onClick={() => handleApproveReservation(booking.id)}
+            className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
+            title="Approve"
+          >
+            Approve
+          </button>
+          <button
+            onClick={() => handleRejectReservation(booking.id)}
+            className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition"
+            title="Reject"
+          >
+            Reject
+          </button>
+          <button
+            onClick={() => handleCancelReservation(booking.id)}
+            className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition"
+            title="Cancel"
+          >
+            Cancel
+          </button>
+        </>
+      )}
+      {booking.status === 'confirmed' && (
+        <button
+          onClick={() => openCheckIn(booking.id)}
+          className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition flex items-center gap-1"
+          title="Check In"
+        >
+          <LogIn size={12} />
+          Check In
+        </button>
+      )}
+      <button
+        onClick={() => openAssignStaff(booking.id)}
+        className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition flex items-center gap-1"
+        title="Assign Staff"
+      >
+        <UserCog size={12} />
+        Staff
+      </button>
+      <button
+        onClick={() => openAssignRoom(booking.id)}
+        className="px-2 py-1 bg-teal-600 text-white text-xs rounded hover:bg-teal-700 transition flex items-center gap-1"
+        title="Assign Room"
+      >
+        <DoorOpen size={12} />
+        Room
+      </button>
+      <button
+        onClick={() => handleDeleteClick(booking.id)}
+        className="p-1 hover:bg-gray-200 rounded transition"
+        title="Delete"
+      >
+        <Trash2 size={16} className="text-red-600" />
+      </button>
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar />
@@ -114,6 +301,9 @@ export default function ReservationsPage() {
                         Room
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                        Assigned Staff
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                         Check-In
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
@@ -131,77 +321,51 @@ export default function ReservationsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.map((booking) => (
-                      <tr
-                        key={booking.id}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition"
-                      >
-                        <td className="px-6 py-4 text-gray-800 font-medium">
-                          {booking.guestName}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 text-sm">
-                          {booking.guestEmail}
-                        </td>
-                        <td className="px-6 py-4 text-gray-700 font-semibold">
-                          {booking.roomNumber}
-                        </td>
-                        <td className="px-6 py-4 text-gray-700">
-                          {new Date(booking.checkInDate).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-gray-700">
-                          {new Date(booking.checkOutDate).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <Badge
-                            className={`${
-                              statusColors[booking.status]
-                            }`}
-                          >
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4 text-gray-700 font-semibold">
-                          ₱{booking.totalPrice}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-2">
-                            {booking.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={() => handleApproveReservation(booking.id)}
-                                  className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
-                                  title="Approve"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleRejectReservation(booking.id)}
-                                  className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition"
-                                  title="Reject"
-                                >
-                                  Reject
-                                </button>
-                              </>
-                            )}
-                            {booking.status === 'pending' && (
-                              <button
-                                onClick={() => handleCancelReservation(booking.id)}
-                                className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition"
-                                title="Cancel"
-                              >
-                                Cancel
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleDeleteClick(booking.id)}
-                              className="p-1 hover:bg-gray-200 rounded transition"
+                    {bookings.map((booking) => {
+                      const assignedStaff = booking.assignedStaffId
+                        ? staffAccounts.find((s) => s.id === booking.assignedStaffId)
+                        : null;
+                      return (
+                        <tr
+                          key={booking.id}
+                          className="border-b border-gray-100 hover:bg-gray-50 transition"
+                        >
+                          <td className="px-6 py-4 text-gray-800 font-medium">
+                            {booking.guestName}
+                          </td>
+                          <td className="px-6 py-4 text-gray-600 text-sm">
+                            {booking.guestEmail}
+                          </td>
+                          <td className="px-6 py-4 text-gray-700 font-semibold">
+                            {booking.roomNumber || '—'}
+                          </td>
+                          <td className="px-6 py-4 text-gray-700 text-sm">
+                            {assignedStaff
+                              ? `${assignedStaff.firstName} ${assignedStaff.lastName}`
+                              : <span className="text-gray-400 italic">Unassigned</span>}
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {new Date(booking.checkInDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {new Date(booking.checkOutDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge
+                              className={`${statusColors[booking.status]}`}
                             >
-                              <Trash2 size={16} className="text-red-600" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-gray-700 font-semibold">
+                            ₱{booking.totalPrice}
+                          </td>
+                          <td className="px-6 py-4">
+                            {renderActions(booking)}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -211,57 +375,55 @@ export default function ReservationsPage() {
                 {bookings.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">No reservations found</p>
                 ) : (
-                  bookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="border border-gray-200 rounded-lg p-4 bg-white space-y-3"
-                    >
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <h3 className="font-semibold text-gray-800">{booking.guestName}</h3>
-                          <p className="text-xs text-gray-600">{booking.guestEmail}</p>
+                  bookings.map((booking) => {
+                    const assignedStaff = booking.assignedStaffId
+                      ? staffAccounts.find((s) => s.id === booking.assignedStaffId)
+                      : null;
+                    return (
+                      <div
+                        key={booking.id}
+                        className="border border-gray-200 rounded-lg p-4 bg-white space-y-3"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{booking.guestName}</h3>
+                            <p className="text-xs text-gray-600">{booking.guestEmail}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Staff: {assignedStaff ? `${assignedStaff.firstName} ${assignedStaff.lastName}` : 'Unassigned'}
+                            </p>
+                          </div>
+                          <Badge
+                            className={`${statusColors[booking.status] || 'bg-gray-100 text-gray-800'}`}
+                          >
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          </Badge>
                         </div>
-                        <Badge
-                          className={`${
-                            statusColors[booking.status] || 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </Badge>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-gray-600">Room:</span>
+                            <p className="font-semibold">{booking.roomNumber || '—'}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Price:</span>
+                            <p className="font-semibold">₱{booking.totalPrice}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Check-In:</span>
+                            <p className="font-semibold text-xs">
+                              {new Date(booking.checkInDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Check-Out:</span>
+                            <p className="font-semibold text-xs">
+                              {new Date(booking.checkOutDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        {renderActions(booking)}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-gray-600">Room:</span>
-                          <p className="font-semibold">{booking.roomNumber}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Price:</span>
-                          <p className="font-semibold">₱{booking.totalPrice}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Check-In:</span>
-                          <p className="font-semibold text-xs">
-                            {new Date(booking.checkInDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Check-Out:</span>
-                          <p className="font-semibold text-xs">
-                            {new Date(booking.checkOutDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleDeleteClick(booking.id)}
-                          className="flex-1 px-2 py-2 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition flex items-center justify-center gap-1"
-                        >
-                          <Trash2 size={14} />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -278,6 +440,120 @@ export default function ReservationsPage() {
             setBookingToDelete(null);
           }}
         />
+
+        {/* Assign Staff Modal */}
+        <Dialog open={assignStaffOpen} onOpenChange={(open) => !open && setAssignStaffOpen(false)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Assign Staff to Reservation</DialogTitle>
+              <DialogDescription>
+                Select a staff member to handle this reservation for {activeBooking?.guestName}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <select
+                value={selectedStaffId}
+                onChange={(e) => setSelectedStaffId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">Select a staff member...</option>
+                {staffAccounts
+                  .filter((s) => s.status === 'active')
+                  .map((staff) => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.firstName} {staff.lastName} — {staff.position}
+                    </option>
+                  ))}
+              </select>
+              {activeStaff && (
+                <p className="text-sm text-gray-600 mt-3">
+                  <span className="font-medium">{activeStaff.position}</span>
+                  {activeStaff.phone ? ` • ${activeStaff.phone}` : ''}
+                </p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAssignStaffOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmAssignStaff}
+                disabled={!selectedStaffId}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                Assign Staff
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Assign Room Modal */}
+        <Dialog open={assignRoomOpen} onOpenChange={(open) => !open && setAssignRoomOpen(false)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Assign Room to Reservation</DialogTitle>
+              <DialogDescription>
+                Select an available room for {activeBooking?.guestName}. Only available rooms are shown.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <select
+                value={selectedRoomId}
+                onChange={(e) => setSelectedRoomId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">Select a room...</option>
+                {availableRooms.map((room) => (
+                  <option key={room.id} value={room.id}>
+                    Room {room.roomNumber} — {room.type} (₱{room.pricePerNight}/night, sleeps {room.capacity})
+                  </option>
+                ))}
+              </select>
+              {availableRooms.length === 0 && (
+                <p className="text-sm text-red-600 mt-3">
+                  No available rooms. All rooms are currently reserved, occupied, or under maintenance.
+                </p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAssignRoomOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmAssignRoom}
+                disabled={!selectedRoomId}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                Assign Room
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Check In Confirmation Modal */}
+        <Dialog open={checkInOpen} onOpenChange={(open) => !open && setCheckInOpen(false)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-blue-700">Confirm Guest Check-In</DialogTitle>
+              <DialogDescription>
+                You are about to check in <span className="font-semibold text-gray-900">{activeBooking?.guestName}</span>
+                {activeBooking?.roomNumber ? ` to Room ${activeBooking.roomNumber}.` : '.'} The reservation status will change to "Checked In" and the room will be marked as occupied. Only staff can check out guests afterward.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCheckInOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmCheckIn}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <LogIn size={16} className="mr-2" />
+                Confirm Check-In
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

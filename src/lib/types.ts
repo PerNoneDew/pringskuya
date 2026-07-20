@@ -59,6 +59,7 @@ export interface Booking {
   checkInTime?: string;
   checkOutTime?: string;
   createdBy?: 'staff' | 'customer' | null;
+  assignedStaffId?: string;
 }
 export interface EventBooking {
   id: string;

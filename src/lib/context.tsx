@@ -104,6 +104,7 @@ const dbBookingToBooking = (db: DatabaseBooking): Booking => ({
   checkInTime: db.checked_in_at || undefined,
   checkOutTime: db.checked_out_at || undefined,
   createdBy: (db.created_by as 'staff' | 'customer' | null) ?? null,
+  assignedStaffId: (db as { assigned_staff_id?: string }).assigned_staff_id || undefined,
 });
 
 const dbEventBookingToEventBooking = (db: DatabaseEventBooking): EventBooking => ({
@@ -376,6 +377,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       if (updates.checkOutDate) dbUpdates.check_out_date = updates.checkOutDate;
       if (updates.numberOfGuests !== undefined) dbUpdates.number_of_guests = updates.numberOfGuests;
       if (updates.totalPrice !== undefined) dbUpdates.total_price = updates.totalPrice;
+      if (updates.assignedStaffId !== undefined) dbUpdates.assigned_staff_id = updates.assignedStaffId || null;
 
       const { error } = await supabase
         .from('bookings')
