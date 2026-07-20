@@ -58,6 +58,7 @@ export interface Booking {
   paymentStatus?: 'pending' | 'completed' | 'cancelled';
   checkInTime?: string;
   checkOutTime?: string;
+  createdBy?: 'staff' | 'customer' | null;
 }
 export interface EventBooking {
   id: string;

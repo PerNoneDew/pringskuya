@@ -103,6 +103,7 @@ const dbBookingToBooking = (db: DatabaseBooking): Booking => ({
   paymentStatus: db.payment_status || undefined,
   checkInTime: db.checked_in_at || undefined,
   checkOutTime: db.checked_out_at || undefined,
+  createdBy: (db.created_by as 'staff' | 'customer' | null) ?? null,
 });
 
 const dbEventBookingToEventBooking = (db: DatabaseEventBooking): EventBooking => ({
@@ -336,6 +337,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
           payment_method: booking.paymentMethod || null,
           payment_reference: booking.paymentReference || null,
           payment_status: booking.paymentStatus || null,
+          created_by: booking.createdBy || null,
         })
         .select()
         .single();
@@ -365,6 +367,15 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       if (updates.paymentMethod) dbUpdates.payment_method = updates.paymentMethod;
       if (updates.paymentReference) dbUpdates.payment_reference = updates.paymentReference;
       if (updates.paymentStatus) dbUpdates.payment_status = updates.paymentStatus;
+      if (updates.roomId !== undefined) dbUpdates.room_id = updates.roomId || null;
+      if (updates.roomNumber !== undefined) dbUpdates.room_number = updates.roomNumber || null;
+      if (updates.guestName) dbUpdates.guest_name = updates.guestName;
+      if (updates.guestEmail) dbUpdates.guest_email = updates.guestEmail;
+      if (updates.guestPhone) dbUpdates.guest_phone = updates.guestPhone;
+      if (updates.checkInDate) dbUpdates.check_in_date = updates.checkInDate;
+      if (updates.checkOutDate) dbUpdates.check_out_date = updates.checkOutDate;
+      if (updates.numberOfGuests !== undefined) dbUpdates.number_of_guests = updates.numberOfGuests;
+      if (updates.totalPrice !== undefined) dbUpdates.total_price = updates.totalPrice;
 
       const { error } = await supabase
         .from('bookings')

@@ -53,6 +53,7 @@ export interface DatabaseBooking {
   payment_status: 'pending' | 'completed' | 'cancelled' | null;
   checked_in_at: string | null;
   checked_out_at: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }

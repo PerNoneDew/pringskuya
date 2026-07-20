@@ -46,6 +46,7 @@ export default function StaffReservationsPage() {
   const filteredBookings = useMemo(() => {
     return bookings
       .filter((b) => b.bookingType !== 'event')
+      .filter((b) => b.createdBy === 'staff')
       .filter((b) => statusFilter === 'all' || b.status === statusFilter)
       .filter(
         (b) =>
@@ -66,7 +67,7 @@ export default function StaffReservationsPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-3xl font-bold text-gray-800 mb-1">Reservations</h2>
-                <p className="text-gray-600">Manually create and manage reservations for walk-in or phone customers.</p>
+                <p className="text-gray-600">Manually create and manage reservations for walk-in or phone customers. New reservations are confirmed automatically and sent to the Check-In queue.</p>
               </div>
               <button
                 onClick={() => setIsCreateOpen(true)}
@@ -97,7 +98,6 @@ export default function StaffReservationsPage() {
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="checked-in">Checked In</option>
-                <option value="checked-out">Checked Out</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -107,8 +107,8 @@ export default function StaffReservationsPage() {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16">
                   <CalendarPlus size={48} className="text-gray-400 mb-4" />
-                  <p className="text-gray-600 text-lg">No reservations found</p>
-                  <p className="text-gray-500 text-sm mt-1">Create a new reservation to get started.</p>
+                  <p className="text-gray-600 text-lg">No manual reservations yet</p>
+                  <p className="text-gray-500 text-sm mt-1">Only reservations created by staff appear here. Online customer bookings are managed elsewhere.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -306,7 +306,8 @@ function CreateReservationModal({ rooms, bookings, onClose, onCreate }: CreateMo
       numberOfGuests,
       bookingType: 'room',
       createdAt: new Date().toISOString(),
-      paymentStatus: status === 'confirmed' ? 'completed' : 'pending',
+      paymentStatus: 'completed',
+      createdBy: 'staff',
     };
     onCreate(newBooking);
   };
