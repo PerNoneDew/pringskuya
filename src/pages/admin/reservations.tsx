@@ -15,6 +15,7 @@ const statusColors: { [key: string]: string } = {
   pending: 'bg-yellow-100 text-yellow-800',
   'checked-out': 'bg-gray-100 text-gray-800',
   cancelled: 'bg-red-100 text-red-800',
+  rejected: 'bg-red-100 text-red-800',
 };
 
 export default function ReservationsPage() {
@@ -36,10 +37,10 @@ export default function ReservationsPage() {
   // Reject Reservation
   const handleRejectReservation = (id: string) => {
     if (confirm('Are you sure you want to reject this reservation?')) {
-      updateBooking(id, { status: 'cancelled' });
+      updateBooking(id, { status: 'rejected' });
       showWarningNotification({
         title: 'Reservation Rejected',
-        description: 'The reservation has been rejected and cancelled.',
+        description: 'The reservation has been rejected.',
       });
     }
   };

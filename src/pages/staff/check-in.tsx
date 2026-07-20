@@ -7,7 +7,7 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { LogIn, Search } from 'lucide-react';
 import { Booking } from '../../lib/types';
-import { showSuccessNotification } from '../../lib/notifications';
+import { showSuccessNotification, showErrorNotification } from '../../lib/notifications';
 
 export default function CheckInPage() {
   const navigate = useNavigate();
@@ -26,6 +26,18 @@ export default function CheckInPage() {
 
   const handleCheckIn = (bookingId: string) => {
     const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkIn = new Date(booking.checkInDate + 'T00:00:00');
+    if (checkIn > today) {
+      showErrorNotification({
+        title: 'Cannot Check In Yet',
+        description: `Check-in date is ${booking.checkInDate}. Guest cannot be checked in before the scheduled date.`,
+      });
+      return;
+    }
 
     updateBooking(bookingId, {
       status: 'checked-in',
@@ -35,7 +47,7 @@ export default function CheckInPage() {
 
     showSuccessNotification({
       title: 'Guest Checked In',
-      description: `Guest ${booking?.guestName} has been checked in to Room ${booking?.roomNumber}. Room status changed to OCCUPIED.`,
+      description: `Guest ${booking.guestName} has been checked in to Room ${booking.roomNumber}. Room status changed to OCCUPIED.`,
     });
   };
 

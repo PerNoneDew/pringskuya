@@ -1,4 +1,4 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   LogIn,
   LogOut,
@@ -8,6 +8,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useBooking } from '../../lib/context';
 
 const menuItems = [
   { label: 'Check-In', href: '/staff/check-in', icon: LogIn },
@@ -19,8 +20,15 @@ const menuItems = [
 
 export function StaffSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useBooking();
   const pathname = location.pathname;
   const [isOpen, setIsOpen] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -34,7 +42,7 @@ export function StaffSidebar() {
       <aside
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-blue-700 to-blue-600 text-white transition-transform duration-300 md:translate-x-0 md:relative z-40`}
+        } fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-blue-700 to-blue-600 text-white transition-transform duration-300 md:translate-x-0 md:relative z-40 flex flex-col`}
       >
         <div className="p-6 flex items-center gap-3 border-b border-blue-500">
           <img
@@ -45,7 +53,7 @@ export function StaffSidebar() {
           <h1 className="text-xl font-bold">Staff Portal</h1>
         </div>
 
-        <nav className="mt-8 px-4">
+        <nav className="mt-8 px-4 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -66,6 +74,16 @@ export function StaffSidebar() {
             );
           })}
         </nav>
+
+        <div className="px-4 pb-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-blue-100 hover:bg-red-600 hover:text-white transition-colors"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {isOpen && (

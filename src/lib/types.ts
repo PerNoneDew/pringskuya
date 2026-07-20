@@ -48,7 +48,7 @@ export interface Booking {
   roomNumber?: string;
   checkInDate: string;
   checkOutDate: string;
-  status: 'pending' | 'confirmed' | 'checked-in' | 'checked-out' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'checked-in' | 'checked-out' | 'cancelled' | 'rejected';
   totalPrice: number;
   numberOfGuests: number;
   createdAt: string;

@@ -66,7 +66,7 @@ export default function GuestsPage() {
     const booking = bookings.find(b => b.id === bookingId);
     if (!booking) return;
 
-    deleteBooking(bookingId);
+    updateBooking(bookingId, { status: 'rejected' });
 
     showErrorNotification({
       title: 'Booking Rejected',
@@ -243,6 +243,7 @@ export default function GuestsPage() {
                             booking.status === 'confirmed' ? 'bg-green-100 text-green-800 border-green-300' :
                             booking.status === 'checked-in' ? 'bg-blue-100 text-blue-800 border-blue-300' :
                             booking.status === 'checked-out' ? 'bg-gray-100 text-gray-800 border-gray-300' :
+                            booking.status === 'rejected' ? 'bg-red-100 text-red-800 border-red-300' :
                             'bg-red-100 text-red-800 border-red-300'
                           }>
                             {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
