@@ -47,6 +47,7 @@ export default function StaffReservationsPage() {
     return bookings
       .filter((b) => b.bookingType !== 'event')
       .filter((b) => b.createdBy === 'staff')
+      .filter((b) => b.status !== 'checked-in' && b.status !== 'checked-out')
       .filter((b) => statusFilter === 'all' || b.status === statusFilter)
       .filter(
         (b) =>
@@ -97,7 +98,6 @@ export default function StaffReservationsPage() {
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
-                <option value="checked-in">Checked In</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -108,7 +108,7 @@ export default function StaffReservationsPage() {
                 <CardContent className="flex flex-col items-center justify-center py-16">
                   <CalendarPlus size={48} className="text-gray-400 mb-4" />
                   <p className="text-gray-600 text-lg">No manual reservations yet</p>
-                  <p className="text-gray-500 text-sm mt-1">Only reservations created by staff appear here. Online customer bookings are managed elsewhere.</p>
+                  <p className="text-gray-500 text-sm mt-1">Only reservations created by staff appear here. Once a guest is checked in, the reservation moves to the Check-In / Check-Out pages.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -254,7 +254,7 @@ function CreateReservationModal({ rooms, bookings, onClose, onCreate }: CreateMo
   const [numberOfGuests, setNumberOfGuests] = useState(1);
   const [status, setStatus] = useState<Booking['status']>('confirmed');
 
-  const availableRooms = rooms.filter((r) => r.status !== 'maintenance');
+  const availableRooms = rooms.filter((r) => r.status === 'available');
   const selectedRoom = rooms.find((r) => r.id === roomId);
 
   const conflict = useMemo(() => {
@@ -557,7 +557,7 @@ interface AssignModalProps {
 function AssignRoomModal({ booking, rooms, bookings, onClose, onAssign }: AssignModalProps) {
   const [selectedRoomId, setSelectedRoomId] = useState(booking.roomId || '');
 
-  const candidateRooms = rooms.filter((r) => r.status !== 'maintenance');
+  const candidateRooms = rooms.filter((r) => r.status === 'available');
 
   const isRoomFree = (room: Room) => {
     return !bookings.some(
