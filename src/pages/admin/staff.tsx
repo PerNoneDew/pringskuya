@@ -4,7 +4,7 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Edit2, Trash2, Plus, Search, Copy } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Copy, UserCheck, UserX } from 'lucide-react';
 import { EditStaffModal } from '../../components/admin/edit-staff-modal';
 import { showSuccessNotification, showErrorNotification } from '../../lib/notifications';
 import { useBooking } from '../../lib/context';
@@ -113,6 +113,19 @@ export default function StaffManagementPage() {
     showSuccessNotification({
       title: 'User Updated',
       description: `${updatedStaffData.firstName} ${updatedStaffData.lastName}'s information has been updated.`,
+    });
+  };
+
+  // Toggle staff active status
+  const handleToggleStatus = (staff: StaffData) => {
+    const newStatus = staff.status === 'active' ? 'inactive' : 'active';
+    updateStaffAccount(staff.id, { ...staff, status: newStatus });
+    showSuccessNotification({
+      title: newStatus === 'active' ? 'User Activated' : 'User Deactivated',
+      description:
+        newStatus === 'active'
+          ? `${staff.firstName} ${staff.lastName} can now log in to the system.`
+          : `${staff.firstName} ${staff.lastName} can no longer log in to the system.`,
     });
   };
 
@@ -439,12 +452,29 @@ export default function StaffManagementPage() {
                               <button
                                 onClick={() => handleOpenEditModal(staff)}
                                 className="p-1 hover:bg-gray-200 rounded transition"
+                                title="Edit user"
                               >
                                 <Edit2 size={16} className="text-blue-600" />
                               </button>
                               <button
+                                onClick={() => handleToggleStatus(staff)}
+                                className="p-1 hover:bg-gray-200 rounded transition"
+                                title={
+                                  staff.status === 'active'
+                                    ? 'Deactivate user'
+                                    : 'Activate user'
+                                }
+                              >
+                                {staff.status === 'active' ? (
+                                  <UserX size={16} className="text-amber-600" />
+                                ) : (
+                                  <UserCheck size={16} className="text-green-600" />
+                                )}
+                              </button>
+                              <button
                                 onClick={() => handleDeleteStaff(staff.id)}
                                 className="p-1 hover:bg-gray-200 rounded transition"
+                                title="Delete user"
                               >
                                 <Trash2 size={16} className="text-red-600" />
                               </button>
