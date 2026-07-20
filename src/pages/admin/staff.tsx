@@ -426,16 +426,26 @@ export default function StaffManagementPage() {
                             {staff.phone || 'N/A'}
                           </td>
                           <td className="px-4 py-3">
-                            <Badge
-                              className={
+                            <button
+                              onClick={() => handleToggleStatus(staff)}
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition hover:opacity-80 ${
                                 staff.status === 'active'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : 'bg-red-100 text-red-800 hover:bg-red-200'
+                              }`}
+                              title={
+                                staff.status === 'active'
+                                  ? 'Click to deactivate this user'
+                                  : 'Click to activate this user'
                               }
                             >
-                              {staff.status.charAt(0).toUpperCase() +
-                                staff.status.slice(1)}
-                            </Badge>
+                              {staff.status === 'active' ? (
+                                <UserCheck size={12} />
+                              ) : (
+                                <UserX size={12} />
+                              )}
+                              {staff.status === 'active' ? 'Active' : 'Deactivate'}
+                            </button>
                           </td>
                           <td className="px-4 py-3 text-gray-700">
                             {new Date(staff.joinDate).toLocaleDateString()}
@@ -455,21 +465,6 @@ export default function StaffManagementPage() {
                                 title="Edit user"
                               >
                                 <Edit2 size={16} className="text-blue-600" />
-                              </button>
-                              <button
-                                onClick={() => handleToggleStatus(staff)}
-                                className="p-1 hover:bg-gray-200 rounded transition"
-                                title={
-                                  staff.status === 'active'
-                                    ? 'Deactivate user'
-                                    : 'Activate user'
-                                }
-                              >
-                                {staff.status === 'active' ? (
-                                  <UserX size={16} className="text-amber-600" />
-                                ) : (
-                                  <UserCheck size={16} className="text-green-600" />
-                                )}
                               </button>
                               <button
                                 onClick={() => handleDeleteStaff(staff.id)}
