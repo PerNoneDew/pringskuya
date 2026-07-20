@@ -32,6 +32,7 @@ export default function StaffManagementPage() {
   const [generatedCredentials, setGeneratedCredentials] = useState<{ firstName: string; lastName: string; email: string; password: string } | null>(null);
   const [newStaff, setNewStaff] = useState({
     firstName: '',
+    middleInitial: '',
     lastName: '',
     email: '',
     position: '',
@@ -76,6 +77,7 @@ export default function StaffManagementPage() {
     const staff = {
       id: `staff-${Date.now()}`,
       firstName: newStaff.firstName,
+      middleInitial: newStaff.middleInitial,
       lastName: newStaff.lastName,
       email: newStaff.email,
       position: newStaff.position,
@@ -95,7 +97,7 @@ export default function StaffManagementPage() {
     });
     setShowCredentialsModal(true);
 
-    setNewStaff({ firstName: '', lastName: '', email: '', position: '', phone: '', password: '' });
+    setNewStaff({ firstName: '', middleInitial: '', lastName: '', email: '', position: '', phone: '', password: '' });
     setShowAddForm(false);
   };
 
@@ -191,6 +193,21 @@ export default function StaffManagementPage() {
                         value={newStaff.firstName}
                         onChange={(e) =>
                           setNewStaff({ ...newStaff, firstName: e.target.value })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Middle Initial
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={3}
+                        placeholder="MI"
+                        value={newStaff.middleInitial}
+                        onChange={(e) =>
+                          setNewStaff({ ...newStaff, middleInitial: e.target.value })
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                       />
@@ -385,7 +402,7 @@ export default function StaffManagementPage() {
                           className="border-b border-gray-100 hover:bg-gray-50"
                         >
                           <td className="px-4 py-3 font-semibold text-gray-800">
-                            {staff.firstName} {staff.lastName}
+                            {staff.firstName} {staff.middleInitial ? `${staff.middleInitial}. ` : ''}{staff.lastName}
                           </td>
                           <td className="px-4 py-3 text-gray-700">
                             {staff.email}

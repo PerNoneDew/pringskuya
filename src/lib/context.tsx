@@ -129,6 +129,7 @@ const dbEventBookingToEventBooking = (db: DatabaseEventBooking): EventBooking =>
 const dbStaffToStaff = (db: DatabaseStaffAccount): StaffAccount => ({
   id: db.id,
   firstName: db.first_name,
+  middleInitial: db.middle_initial,
   lastName: db.last_name,
   email: db.email,
   phone: db.phone,
@@ -637,6 +638,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         .from('staff_accounts')
         .insert({
           first_name: staffAccount.firstName,
+          middle_initial: staffAccount.middleInitial || null,
           last_name: staffAccount.lastName,
           email: staffAccount.email,
           phone: staffAccount.phone,
@@ -664,6 +666,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       const dbUpdates: Record<string, unknown> = {};
 
       if (updates.firstName) dbUpdates.first_name = updates.firstName;
+      if ('middleInitial' in updates) dbUpdates.middle_initial = updates.middleInitial || null;
       if (updates.lastName) dbUpdates.last_name = updates.lastName;
       if (updates.email) dbUpdates.email = updates.email;
       if (updates.phone) dbUpdates.phone = updates.phone;

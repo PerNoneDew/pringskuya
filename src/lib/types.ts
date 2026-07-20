@@ -15,6 +15,7 @@ export interface User {
 export interface StaffAccount {
   id: string;
   firstName: string;
+  middleInitial?: string;
   lastName: string;
   email: string;
   position: string;

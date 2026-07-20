@@ -82,6 +82,7 @@ export interface DatabaseEventBooking {
 export interface DatabaseStaffAccount {
   id: string;
   first_name: string;
+  middle_initial?: string;
   last_name: string;
   email: string;
   phone: string;

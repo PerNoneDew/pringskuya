@@ -2,21 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-
-interface StaffData {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  role: string;
-  status: string;
-}
+import { StaffAccount } from '../../lib/types';
 
 interface EditStaffModalProps {
-  staff: StaffData | null;
+  staff: StaffAccount | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedStaff: StaffData) => void;
+  onSave: (updatedStaff: StaffAccount) => void;
 }
 
 export function EditStaffModal({
@@ -25,17 +17,17 @@ export function EditStaffModal({
   onClose,
   onSave,
 }: EditStaffModalProps) {
-  const [formData, setFormData] = useState<StaffData | null>(null);
+  const [formData, setFormData] = useState<StaffAccount | null>(null);
 
   useEffect(() => {
     if (staff) {
-      setFormData({ ...staff });
+      setFormData({ ...staff, middleInitial: staff.middleInitial || '' });
     }
   }, [staff]);
 
   if (!isOpen || !formData) return null;
 
-  const handleChange = (field: keyof StaffData, value: string) => {
+  const handleChange = (field: keyof StaffAccount, value: string) => {
     setFormData({
       ...formData,
       [field]: value,
@@ -66,12 +58,38 @@ export function EditStaffModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
+              First Name
             </label>
             <input
               type="text"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              value={formData.firstName}
+              onChange={(e) => handleChange('firstName', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              MI
+            </label>
+            <input
+              type="text"
+              maxLength={3}
+              value={formData.middleInitial || ''}
+              onChange={(e) => handleChange('middleInitial', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input
+              type="text"
+              value={formData.lastName}
+              onChange={(e) => handleChange('lastName', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
             />
@@ -104,16 +122,18 @@ export function EditStaffModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
+              Position
             </label>
             <select
-              value={formData.role}
-              onChange={(e) => handleChange('role', e.target.value)}
+              value={formData.position}
+              onChange={(e) => handleChange('position', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
-              <option value="staff">User</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="manager">Manager</option>
+              <option value="Manager">Manager</option>
+              <option value="Front Desk Officer">Front Desk Officer</option>
+              <option value="Housekeeper">Housekeeper</option>
+              <option value="Chef">Chef</option>
+              <option value="Security">Security</option>
             </select>
           </div>
 
