@@ -129,11 +129,17 @@ export function EditStaffModal({
               onChange={(e) => handleChange('position', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
+              <option value="">Select Position</option>
               <option value="Manager">Manager</option>
               <option value="Front Desk Officer">Front Desk Officer</option>
               <option value="Housekeeper">Housekeeper</option>
               <option value="Chef">Chef</option>
               <option value="Security">Security</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Bellboy">Bellboy</option>
+              <option value="Concierge">Concierge</option>
+              <option value="Event Coordinator">Event Coordinator</option>
+              <option value="Accountant">Accountant</option>
             </select>
           </div>
 
