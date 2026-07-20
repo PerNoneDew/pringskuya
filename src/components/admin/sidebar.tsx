@@ -20,7 +20,7 @@ const menuItems = [
   { label: 'Reservations', href: '/admin/reservations', icon: Calendar },
   { label: 'Rooms', href: '/admin/rooms', icon: DoorOpen },
   { label: 'Guests', href: '/admin/guests', icon: Users },
-  { label: 'Staff', href: '/admin/staff', icon: UserPlus },
+  { label: 'Users', href: '/admin/staff', icon: UserPlus },
   { label: 'Events', href: '/admin/events', icon: Gift },
   { label: 'Services', href: '/admin/services', icon: Utensils },
   { label: 'Reports', href: '/admin/reports', icon: BarChart3 },

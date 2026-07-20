@@ -49,7 +49,7 @@ export default function StaffManagementPage() {
     return password;
   };
 
-  // Add Staff Account
+  // Add User Account
   const handleAddStaff = () => {
     if (
       !newStaff.firstName ||
@@ -109,7 +109,7 @@ export default function StaffManagementPage() {
   const handleSaveStaff = (updatedStaffData: any) => {
     updateStaffAccount(updatedStaffData.id, updatedStaffData);
     showSuccessNotification({
-      title: 'Staff Updated',
+      title: 'User Updated',
       description: `${updatedStaffData.firstName} ${updatedStaffData.lastName}'s information has been updated.`,
     });
   };
@@ -119,8 +119,8 @@ export default function StaffManagementPage() {
     if (confirm('Are you sure you want to deactivate this staff member?')) {
       deleteStaffAccount(staffId);
       showSuccessNotification({
-        title: 'Staff Deactivated',
-        description: 'Staff account has been deactivated successfully.',
+        title: 'User Deactivated',
+        description: 'User account has been deactivated successfully.',
       });
     }
   };
@@ -163,21 +163,21 @@ export default function StaffManagementPage() {
         <main className="flex-1 overflow-auto">
           <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800">Staff Management</h2>
+              <h2 className="text-3xl font-bold text-gray-800">Users Management</h2>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
               >
                 <Plus size={18} />
-                Add Staff
+                Add User
               </button>
             </div>
 
-            {/* Add Staff Form */}
+            {/* Add User Form */}
             {showAddForm && (
               <Card className="mb-6 border-l-4 border-blue-500">
                 <CardHeader>
-                  <CardTitle>Add New Staff Member</CardTitle>
+                  <CardTitle>Add New User</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,7 +294,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-gray-600">
-                    Total Staff
+                    Total Users
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -307,7 +307,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-gray-600">
-                    Active Staff
+                    Active Users
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -320,7 +320,7 @@ export default function StaffManagementPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-gray-600">
-                    Inactive Staff
+                    Inactive Users
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -348,7 +348,7 @@ export default function StaffManagementPage() {
             {/* Staff Table */}
             <Card>
               <CardHeader>
-                <CardTitle>Staff List</CardTitle>
+                <CardTitle>Users List</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -455,7 +455,7 @@ export default function StaffManagementPage() {
             <Card className="w-full max-w-md mx-4 border-2 border-green-500">
               <CardHeader>
                 <CardTitle className="text-center text-green-600">
-                  Staff Account Created Successfully!
+                  User Account Created Successfully!
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
