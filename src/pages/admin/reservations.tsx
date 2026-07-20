@@ -46,6 +46,14 @@ export default function ReservationsPage() {
 
   // Cancel Reservation
   const handleCancelReservation = (id: string) => {
+    const booking = bookings.find((b) => b.id === id);
+    if (booking?.status === 'checked-in') {
+      showErrorNotification({
+        title: 'Cannot Cancel Reservation',
+        description: 'This reservation is already checked in and cannot be cancelled.',
+      });
+      return;
+    }
     if (confirm('Are you sure you want to cancel this reservation?')) {
       updateBooking(id, { status: 'cancelled' });
       showWarningNotification({
@@ -174,7 +182,7 @@ export default function ReservationsPage() {
                                 </button>
                               </>
                             )}
-                            {booking.status !== 'cancelled' && booking.status !== 'checked-out' && (
+                            {booking.status !== 'cancelled' && booking.status !== 'checked-out' && booking.status !== 'checked-in' && (
                               <button
                                 onClick={() => handleCancelReservation(booking.id)}
                                 className="px-2 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition"
