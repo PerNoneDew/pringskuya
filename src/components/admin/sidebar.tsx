@@ -1,4 +1,4 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
@@ -10,8 +10,10 @@ import {
   Gift,
   Utensils,
   UserPlus,
+  LogOut,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useBooking } from '../../lib/context';
 
 const menuItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -27,8 +29,15 @@ const menuItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useBooking();
   const pathname = location.pathname;
   const [isOpen, setIsOpen] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -42,7 +51,7 @@ export function AdminSidebar() {
       <aside
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-slate-800 to-slate-700 text-white transition-transform duration-300 md:translate-x-0 md:relative z-40`}
+        } fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-slate-800 to-slate-700 text-white transition-transform duration-300 md:translate-x-0 md:relative z-40 flex flex-col`}
       >
         <div className="p-6 flex items-center gap-3 border-b border-slate-700">
           <img
@@ -53,7 +62,7 @@ export function AdminSidebar() {
           <h1 className="text-xl font-bold">Admin Dashboard</h1>
         </div>
 
-        <nav className="mt-8 px-4">
+        <nav className="mt-8 px-4 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -74,6 +83,16 @@ export function AdminSidebar() {
             );
           })}
         </nav>
+
+        <div className="px-4 pb-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-slate-200 hover:bg-red-600 hover:text-white transition-colors"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {isOpen && (
