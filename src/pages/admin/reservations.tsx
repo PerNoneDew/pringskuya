@@ -4,7 +4,7 @@ import { AdminSidebar } from '../../components/admin/sidebar';
 import { AdminHeader } from '../../components/admin/header';
 import { useBooking } from '../../lib/context';
 import { Badge } from '../../components/ui/badge';
-import { Trash2, UserCog, DoorOpen, LogIn } from 'lucide-react';
+import { Trash2, DoorOpen, LogIn } from 'lucide-react';
 import { showSuccessNotification, showErrorNotification, showWarningNotification } from '../../lib/notifications';
 import { DeleteConfirmDialog } from '../../components/delete-confirm-dialog';
 import {
@@ -41,15 +41,12 @@ export default function ReservationsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
 
-  const [assignStaffOpen, setAssignStaffOpen] = useState(false);
   const [assignRoomOpen, setAssignRoomOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [activeBookingId, setActiveBookingId] = useState<string | null>(null);
-  const [selectedStaffId, setSelectedStaffId] = useState('');
   const [selectedRoomId, setSelectedRoomId] = useState('');
 
   const activeBooking = bookings.find((b) => b.id === activeBookingId) || null;
-  const activeStaff = staffAccounts.find((s) => s.id === selectedStaffId) || null;
 
   const availableRooms = rooms.filter(
     (r) =>
@@ -113,27 +110,6 @@ export default function ReservationsPage() {
       setDeleteDialogOpen(false);
       setBookingToDelete(null);
     }
-  };
-
-  // Assign Staff
-  const openAssignStaff = (id: string) => {
-    const booking = bookings.find((b) => b.id === id);
-    setActiveBookingId(id);
-    setSelectedStaffId(booking?.assignedStaffId || '');
-    setAssignStaffOpen(true);
-  };
-
-  const handleConfirmAssignStaff = () => {
-    if (!activeBookingId || !selectedStaffId) return;
-    updateBooking(activeBookingId, { assignedStaffId: selectedStaffId });
-    const staff = staffAccounts.find((s) => s.id === selectedStaffId);
-    showSuccessNotification({
-      title: 'Staff Assigned',
-      description: `${staff?.firstName} ${staff?.lastName} has been assigned to this reservation.`,
-    });
-    setAssignStaffOpen(false);
-    setActiveBookingId(null);
-    setSelectedStaffId('');
   };
 
   // Assign Room
@@ -245,14 +221,6 @@ export default function ReservationsPage() {
         </button>
       )}
       <button
-        onClick={() => openAssignStaff(booking.id)}
-        className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition flex items-center gap-1"
-        title="Assign Staff"
-      >
-        <UserCog size={12} />
-        Staff
-      </button>
-      <button
         onClick={() => openAssignRoom(booking.id)}
         className="px-2 py-1 bg-teal-600 text-white text-xs rounded hover:bg-teal-700 transition flex items-center gap-1"
         title="Assign Room"
@@ -301,9 +269,6 @@ export default function ReservationsPage() {
                         Room
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Assigned Staff
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                         Check-In
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
@@ -322,9 +287,6 @@ export default function ReservationsPage() {
                   </thead>
                   <tbody>
                     {bookings.map((booking) => {
-                      const assignedStaff = booking.assignedStaffId
-                        ? staffAccounts.find((s) => s.id === booking.assignedStaffId)
-                        : null;
                       return (
                         <tr
                           key={booking.id}
@@ -338,11 +300,6 @@ export default function ReservationsPage() {
                           </td>
                           <td className="px-6 py-4 text-gray-700 font-semibold">
                             {booking.roomNumber || '—'}
-                          </td>
-                          <td className="px-6 py-4 text-gray-700 text-sm">
-                            {assignedStaff
-                              ? `${assignedStaff.firstName} ${assignedStaff.lastName}`
-                              : <span className="text-gray-400 italic">Unassigned</span>}
                           </td>
                           <td className="px-6 py-4 text-gray-700">
                             {new Date(booking.checkInDate).toLocaleDateString()}
@@ -376,9 +333,6 @@ export default function ReservationsPage() {
                   <p className="text-center text-gray-500 py-8">No reservations found</p>
                 ) : (
                   bookings.map((booking) => {
-                    const assignedStaff = booking.assignedStaffId
-                      ? staffAccounts.find((s) => s.id === booking.assignedStaffId)
-                      : null;
                     return (
                       <div
                         key={booking.id}
@@ -388,9 +342,6 @@ export default function ReservationsPage() {
                           <div>
                             <h3 className="font-semibold text-gray-800">{booking.guestName}</h3>
                             <p className="text-xs text-gray-600">{booking.guestEmail}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Staff: {assignedStaff ? `${assignedStaff.firstName} ${assignedStaff.lastName}` : 'Unassigned'}
-                            </p>
                           </div>
                           <Badge
                             className={`${statusColors[booking.status] || 'bg-gray-100 text-gray-800'}`}
@@ -440,52 +391,6 @@ export default function ReservationsPage() {
             setBookingToDelete(null);
           }}
         />
-
-        {/* Assign Staff Modal */}
-        <Dialog open={assignStaffOpen} onOpenChange={(open) => !open && setAssignStaffOpen(false)}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Assign Staff to Reservation</DialogTitle>
-              <DialogDescription>
-                Select a staff member to handle this reservation for {activeBooking?.guestName}.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <select
-                value={selectedStaffId}
-                onChange={(e) => setSelectedStaffId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="">Select a staff member...</option>
-                {staffAccounts
-                  .filter((s) => s.status === 'active')
-                  .map((staff) => (
-                    <option key={staff.id} value={staff.id}>
-                      {staff.firstName} {staff.lastName} — {staff.position}
-                    </option>
-                  ))}
-              </select>
-              {activeStaff && (
-                <p className="text-sm text-gray-600 mt-3">
-                  <span className="font-medium">{activeStaff.position}</span>
-                  {activeStaff.phone ? ` • ${activeStaff.phone}` : ''}
-                </p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setAssignStaffOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmAssignStaff}
-                disabled={!selectedStaffId}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                Assign Staff
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Assign Room Modal */}
         <Dialog open={assignRoomOpen} onOpenChange={(open) => !open && setAssignRoomOpen(false)}>

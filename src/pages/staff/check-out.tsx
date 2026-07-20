@@ -42,10 +42,13 @@ export default function CheckOutPage() {
     updateBooking(bookingId, {
       status: 'checked-out',
       checkOutTime: new Date().toISOString(),
+      assignedStaffId: null,
+      roomId: null,
+      roomNumber: null,
     });
     showSuccessNotification({
       title: 'Guest Checked Out',
-      description: 'Guest has been checked out successfully!',
+      description: 'Guest has been checked out successfully. Staff and room assignments have been cleared.',
     });
   };
 

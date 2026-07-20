@@ -44,8 +44,8 @@ export interface Booking {
   guestEmail: string;
   guestPhone: string;
   bookingType: 'room' | 'event';
-  roomId?: string;
-  roomNumber?: string;
+  roomId?: string | null;
+  roomNumber?: string | null;
   checkInDate: string;
   checkOutDate: string;
   status: 'pending' | 'confirmed' | 'checked-in' | 'checked-out' | 'cancelled' | 'rejected';
@@ -59,7 +59,7 @@ export interface Booking {
   checkInTime?: string;
   checkOutTime?: string;
   createdBy?: 'staff' | 'customer' | null;
-  assignedStaffId?: string;
+  assignedStaffId?: string | null;
 }
 export interface EventBooking {
   id: string;
