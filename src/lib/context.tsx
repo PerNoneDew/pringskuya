@@ -344,11 +344,12 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
       if (data) {
         const newBooking = dbBookingToBooking(data as DatabaseBooking);
+        const next = [...bookings, newBooking];
         setBookings(prev => [...prev, newBooking]);
 
-        // Update room status
+        // Update room status against the post-insert snapshot
         if (newBooking.roomId) {
-          updateRoomStatus(newBooking.roomId);
+          updateRoomStatus(newBooking.roomId, next);
         }
       }
     } catch (error) {
@@ -372,12 +373,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
+      const updatedBookings = bookings.map(b => b.id === id ? { ...b, ...updates } : b);
       setBookings(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
 
-      // Update room status if needed
-      const booking = bookings.find(b => b.id === id);
+      // Update room status against the post-update snapshot
+      const booking = updatedBookings.find(b => b.id === id);
       if (booking?.roomId) {
-        updateRoomStatus(booking.roomId);
+        updateRoomStatus(booking.roomId, updatedBookings);
       }
     } catch (error) {
       console.error('Error updating booking:', error);
@@ -395,11 +397,12 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
+      const remaining = bookings.filter(b => b.id !== id);
       setBookings(prev => prev.filter(b => b.id !== id));
 
-      // Update room status
+      // Update room status against the post-delete snapshot
       if (booking?.roomId) {
-        updateRoomStatus(booking.roomId);
+        updateRoomStatus(booking.roomId, remaining);
       }
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -548,9 +551,12 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Helper to update room status based on bookings
-  const updateRoomStatus = async (roomId: string) => {
-    const roomBookings = bookings.filter(
+  // Helper to update room status based on bookings. Accepts an explicit
+  // bookings snapshot so callers can pass the post-update state and avoid
+  // reading a stale closure value.
+  const updateRoomStatus = async (roomId: string, snapshot?: Booking[]) => {
+    const source = snapshot ?? bookings;
+    const roomBookings = source.filter(
       b => b.roomId === roomId && ['pending', 'confirmed', 'checked-in'].includes(b.status)
     );
 

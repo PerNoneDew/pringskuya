@@ -118,14 +118,14 @@ export default function CustomerPage() {
       return;
     }
 
-    if (room.status === 'available') {
-      setSelectedRoom(room);
-      setIsModalOpen(true);
-      showInfoNotification({
-        title: 'Book Room',
-        description: `Booking Room ${room.roomNumber} (${room.type})`,
-      });
-    }
+    // 'available' and 'reserved' rooms can be booked; the booking modal
+    // checks date conflicts so a reserved room can be booked for free dates.
+    setSelectedRoom(room);
+    setIsModalOpen(true);
+    showInfoNotification({
+      title: 'Book Room',
+      description: `Booking Room ${room.roomNumber} (${room.type})`,
+    });
   };
 
   const handleConfirmBooking = (booking: Omit<Booking, 'id' | 'createdAt'>) => {
@@ -425,7 +425,7 @@ export default function CustomerPage() {
                 key={room.id}
                 room={room}
                 onBook={handleBookRoom}
-                isAvailable={room.status === 'available'}
+                isAvailable={room.status === 'available' || room.status === 'reserved'}
               />
             ))}
           </div>
