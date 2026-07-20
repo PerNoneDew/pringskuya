@@ -63,6 +63,8 @@ export function BookingModal({
       (booking) =>
         booking.roomId === room.id &&
         booking.status !== 'cancelled' &&
+        booking.status !== 'checked-out' &&
+        booking.status !== 'rejected' &&
         datesOverlap(checkInDate, checkOutDate, booking.checkInDate, booking.checkOutDate)
     );
 
